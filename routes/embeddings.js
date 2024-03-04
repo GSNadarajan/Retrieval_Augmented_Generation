@@ -1,21 +1,21 @@
-const {OpenAI} = require("openai")
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-async function createEmbeddings(text){
-    try{
-        const openai = new OpenAI({
-            apiKey : process.env.OpenAIKEY
-        })
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
-        const embeddings = openai.embeddings.create({
-            input : text,
-            model : "text-embedding-ada-002"
-        })
+async function createEmbeddings(text) {
+    try {
+        const model = genAI.getGenerativeModel({ model: "embedding-001" });
 
-        return embeddings
-    }
-    catch(error){
-        throw new Error(error)
+        const result = await model.embedContent(text);
+        const embedding = result.embedding;
+        console.log(embedding.values);
+        console.log(text)
+        return embedding.values;
+    } catch (error) {
+        throw new Error(error);
     }
 }
 
-module.exports = { createEmbeddings} ;
+createEmbeddings("Hello world");
+
+module.exports = { createEmbeddings };
