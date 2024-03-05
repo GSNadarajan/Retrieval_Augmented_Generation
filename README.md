@@ -58,6 +58,7 @@ const response = chat.sendMessage({
   role: "user",
   parts: "Can you tell me more about Gemini AI?",
 });
+```
 
 
 ## APIs
