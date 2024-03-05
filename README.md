@@ -119,6 +119,5 @@ npm install openai
 ```
 
 Now, your project is set up with all the necessary dependencies. You can run the application using `nodemon` for automatic restarts during development.
-```
 
 
