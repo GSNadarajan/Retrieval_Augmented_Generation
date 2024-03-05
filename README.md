@@ -18,7 +18,7 @@ This repository leverages Gemini AI to build multi-turn conversations, allowing 
 
 ## Usage
 
-To construct a multi-turn conversation using the Gemini Pro model, follow these steps:
+To construct a multi-turn conversation using the `Gemini-pro` model, follow these steps:
 
 1. Initialize the chat with the gemini-pro model by calling `startChat()`.
 2. Use `sendMessage()` to send a new user message, automatically updating the chat history with the message and the model's response.
@@ -93,16 +93,17 @@ This project uses MongoDB Atlas as a vector database to store and retrieve docum
 
 ## Installation
 
-1. Install express generator globally:
 
-```bash
-npx express-generator
-```
-
-2. Install project dependencies:
+1. Install project dependencies:
 
 ```bash
 npm install
+```
+
+2. Install express generator globally:
+
+```bash
+npx express-generator
 ```
 
 3. Install nodemon for automatic server restarts:
