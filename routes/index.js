@@ -26,8 +26,10 @@ router.post("/load-document", async(req, res) => {
     parser.loadPDF("./docs/ajithkumar.pdf");
     parser.on("pdfParser_dataReady",async(data) => {
       await fs.writeFileSync("./context.txt", parser.getRawTextContent())
+      console.log("Content written in text file")
     
       const content = await fs.readFileSync("./context.txt","utf-8");
+      console.log("content is gonna to split")
       const splitContent = content.split("\n");
       const connection =await  mongodb.MongoClient.connect(process.env.DB);
       const db = connection.db("rag_doc");

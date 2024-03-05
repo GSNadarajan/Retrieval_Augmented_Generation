@@ -4,6 +4,7 @@ const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
 async function createEmbeddings(text) {
     try {
+        console.log("Create embedding function");
         const model = genAI.getGenerativeModel({ model: "embedding-001" });
 
         const result = await model.embedContent(text);
@@ -16,6 +17,6 @@ async function createEmbeddings(text) {
     }
 }
 
-createEmbeddings("Hello world");
+// createEmbeddings("Hello world");
 
 module.exports = { createEmbeddings };
