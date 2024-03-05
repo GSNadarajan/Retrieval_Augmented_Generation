@@ -3,7 +3,9 @@ var router = express.Router();
 const { MongoClient, ObjectId } = require("mongodb");
 const { createEmbeddings } = require("./embeddings");
 const fs = require("fs");
-const db = require("dotenv").config();
+require('dotenv').config()
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
 var PDFParser = require("pdf2json");
 const { runInNewContext } = require("vm");
@@ -14,9 +16,8 @@ const DB =
 /* GET home page. */
 router.get("/", async function (req, res, next) {
   try {
-    console.log("inside try");
     const connection = await MongoClient.connect(DB);
-    console.log(process.env.DB);
+    // console.log("env from file" ,process.env.DB);
     const db = connection.db("rag_doc");
     const collection = db.collection("demo");
     await collection.insertOne({ test: "Success" });
@@ -40,7 +41,6 @@ router.post("/load-document", async (req, res) => {
 
       for (line of splitContent) {
         const embedings = await createEmbeddings(line);
-        console.log("embedded content: ", embedings);
         await collection.insertOne({
           text: line,
           // embeddings : embedings.data[0].embeding
@@ -60,6 +60,12 @@ router.post("/conversation", async (req, res) => {
   try {
     let sessionId = req.body.sessionId;
     const connection = await MongoClient.connect(DB);
+    if(connection){
+      console.log("Making db conn");
+    }
+    else{
+      console.log("Mongo connection failure")
+    }
     const db = connection.db("rag_doc");
 
     if (!sessionId) {
@@ -88,7 +94,7 @@ router.post("/conversation", async (req, res) => {
     }
 
 
-    // Let's work conversation
+    // Let's work conversationc
     const message = req.body.message;
     const Concollection = db.collection("conversation");
     await Concollection.insertOne({
@@ -100,7 +106,7 @@ router.post("/conversation", async (req, res) => {
     });
 
     // Convert message to vector
-    console.log(req.body.message);
+    // console.log(req.body.message);
     const messageVector = await createEmbeddings(req.body.message);
 
     const demoCollection = db.collection("demo");
@@ -127,11 +133,79 @@ router.post("/conversation", async (req, res) => {
 
     let finalResult = []
 
+    
     for await(let doc of vectorSearch){
       finalResult.push(doc)
     }
+  
+    
+    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+    const formattedMessage = `
+    Ajith Kumar, popularly known as 'Thala Ajith,' is a celebrated Indian film actor who has left an indelible mark on the Tamil film industry. Born on May 1, 1971, in Hyderabad, India, Ajith's acting style is characterized by a unique blend of intensity, versatility, and natural flair. His ability to immerse himself into diverse roles has earned him accolades and Ajith's filmography is an impressive tapestry of successful movies, each contributing to his iconic status. Films like 'Mankatha,' 'Veeram,' 'Vedalam,' and 'Viswasam' have not only showcased his acting prowess but have also established him as a leading star in the industry. Apart from his cinematic achievements, Ajith is known for his philanthropic efforts, and his role as a family man. Ajith Kumar stands as a multifaceted personality, a revered actor, a racing enthusiast, a humble individual, and a beacon of inspiration. Ajith's humility and simplicity are often spoken about by those who have worked with him. Despite his celebrity status, he maintains a down-to-earth demeanor, making him approachable. Ajith's journey to stardom is a tale of perseverance, talent, and charisma. Beyond acting, Ajith is passionate about motorsports, expressing his love for speed and adventure. Ajith's dedication to motorsports has garnered him recognition and awards, further adding to his diverse repertoire. In addition to his contributions to the entertainment industry, Ajith is actively involved in philanthropic endeavors. His charitable activities span a range of causes, including education and healthcare. From a young age, Ajith displayed a penchant for acting and the arts. His foray into the film industry began in the late 1980s when he took on small roles. However, it was his breakthrough role in the film 'Prema Pusthakam' in 1992 that catapulted him into the spotlight. The success of the movie marked the beginning of Ajith's illustrious career in the world of cinema.
+    `;
+    // const chat = model.startChat({
+    //   history: [
+    //     {
+    //       role: "model",
+    //       parts: "You are a humble helper who can answer for questions asked by users from the given context.",
+    //     },
+    //     {
+    //       role: "user",
+    //       parts: formattedMessage
+    //     },
+    //   ],
+    //   generationConfig: {
+    //     maxOutputTokens: 50,
+    //   },
+    // });
 
-    return res.json(finalResult);
+    // console.log("formatted message", formattedMessage)
+
+   
+
+    // const result = await chat.sendMessage(message);
+    // const response = await result.response;
+    // const text = response.text();
+    // console.log("text" ,text);
+
+
+    /// -----------------------DEMO MODEL FOR CHAT BASED ON THE CONTENT --------------------------------
+
+    const formattedContent = finalResult.map(doc => doc.text).join("\n");
+
+// Combine with the additional question
+    const formattedmessage = `${formattedContent}\n\n From the above context, answer the following question: ${message}`;
+
+    const chat = model.startChat({
+      history: [
+        {
+          role: "user",
+          parts : formattedmessage
+        },
+        {
+          role: "model",
+          parts: "You are a humble helper who can answer for questions asked by users from the given context.",
+          
+        },
+        
+      ],
+      generationConfig: {
+        maxOutputTokens: 100,
+      },
+    });
+  
+    // const msg = "Who is thala?";
+    // console.log("users messsage", message);
+  
+    const result = await chat.sendMessage(req.body.message);
+    const response = await result.response;
+    const text = response.text();
+    console.log(text);
+
+    /// -----------------------DEMO MODEL FOR CHAT BASED ON THE CONTENT --------------------------------
+
+  
+    return res.json(text);
   } catch (error) {
     res.json({ messsage: "Something went wrong" });
     console.log(error);
