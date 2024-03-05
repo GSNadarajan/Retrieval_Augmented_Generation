@@ -8,10 +8,8 @@ async function createEmbeddings(text) {
         const model = genAI.getGenerativeModel({ model: "embedding-001" });
 
         const result = await model.embedContent(text);
-        const embedding = result.embedding;
-        console.log(embedding.values);
-        console.log(text)
-        return embedding.values;
+        const embedding = result.embedding.values;
+        return embedding;
     } catch (error) {
         throw new Error(error);
     }
