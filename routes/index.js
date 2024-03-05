@@ -10,9 +10,6 @@ const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 var PDFParser = require("pdf2json");
 const { runInNewContext } = require("vm");
 const parser = new PDFParser(this, 1);
-const DB =
-  "mongodb+srv://Nattu:dEGBZBiEpR3Xyr0k@cluster0.0yeuk36.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
-
 /* GET home page. */
 router.get("/", async function (req, res, next) {
   try {
