@@ -64,19 +64,24 @@ const response = chat.sendMessage({
 
 ### 1. /load-document
 
-**Description**: Reads content from the user-uploaded file.
+**Description**: This API will read the content from the document which was uploaded by the user.
 
 **Endpoint**: `POST /load-document`
 
 ### 2. /create-embeddings
 
-**Description**: Generates embeddings for the content by chunking the document.
+**Description**: This API will create an embeddings for the content from the file (user uploaded ), Here I chunks the code based on the new line `\n`
 
-**Endpoint**: `POST /create-embeddings`
+**Endpoint**: `POST /create-embeddings` 
 
 ### 3. /conversation
 
-**Description**: Facilitates conversation based on user queries within the document.
+**Description**:
+    * This conversation API will the core part in RAG, here the user will make a prompt about the file they  uploaded. 
+    * The user query will be embedded initially using the "model: embedding-001" and then it will make a aggregation using mongoDB query
+    * It will return the top scores based on the users query.
+    * Finally the context will send to the `gemini-ai` and it make the content more generative
+
 
 **Endpoint**: `POST /conversation`
 
