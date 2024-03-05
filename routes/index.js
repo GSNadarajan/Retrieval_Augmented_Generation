@@ -16,7 +16,7 @@ const DB =
 /* GET home page. */
 router.get("/", async function (req, res, next) {
   try {
-    const connection = await MongoClient.connect(DB);
+    const connection = await MongoClient.connect(process.env.DB);
     // console.log("env from file" ,process.env.DB);
     const db = connection.db("rag_doc");
     const collection = db.collection("demo");
@@ -59,7 +59,7 @@ router.post("/load-document", async (req, res) => {
 router.post("/conversation", async (req, res) => {
   try {
     let sessionId = req.body.sessionId;
-    const connection = await MongoClient.connect(DB);
+    const connection = await MongoClient.connect(process.env.DB);
     if(connection){
       console.log("Making db conn");
     }
